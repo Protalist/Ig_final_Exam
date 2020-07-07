@@ -11,11 +11,21 @@ var instanceMatrix;
 
 var modelViewMatrixLoc;
 
+//animation
+var direction=0;
+
+var arrow_left=37;
+var arrow_up =38;
+var arrow_right=39;
+var arrow_down=40;
+
+var verse=1;
+
 //camera
 var eye=vec3(0,0,0)
 var at =vec3(0,0,0)
 var up=vec3(0,1,0)
-var radius = 17.0;
+var radius = 45.0;
 var anglec=25*Math.PI/180;
 
 //projection
@@ -112,13 +122,14 @@ var wheel3ID = 3;
 var wheel4ID = 4;
 var sceneId=5;
 var worldID=6;
+var cameraId=7
 
 
-var numNodes = 7;
+var numNodes = 8;
 var numAngles = 11;
 var angle = 0;
 
-var theta = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]];
+var theta = [[0,0,0,0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]];
 
 var wheelDepth=0.5;
 var wheelHight=0.5;
@@ -158,6 +169,33 @@ function createNode(transform, render, sibling, child){
     return node;
 }
 
+function rotate( angle, axis )
+{
+  if ( axis.length == 3 ) {
+    axis = vec3(axis[0], axis[1], axis[2] );
+  }
+   if(arguments.length == 4) {
+    axis = vec3(arguments[1], arguments[2], arguments[3]);
+  }
+    if(axis.type != 'vec3') throw "rotate: axis not a vec3";
+    var v = normalize( axis );
+
+    var x = v[0];
+    var y = v[1];
+    var z = v[2];
+
+    var c = Math.cos( radians(angle) );
+    var omc = 1.0 - c;
+    var s = Math.sin( radians(angle) );
+
+    var result = mat4(
+        x*x*omc + c,   x*y*omc + z*s, x*z*omc - y*s, 0.0 ,
+         x*y*omc - z*s, y*y*omc + c,   y*z*omc + x*s, 0.0 ,
+         x*z*omc + y*s, y*z*omc - x*s, z*z*omc + c,   0.0 ,
+        0.0, 0.0, 0.0, 1.0
+    );
+    return result;
+}
 
 function initNodes(Id) {
 
@@ -166,15 +204,55 @@ function initNodes(Id) {
     switch(Id) {
     
     case sceneId:
-        eye=vec3(0,radius*Math.sin(anglec),radius*Math.cos(anglec))
+        eye=vec3(                        
+        (15+17)*Math.sin(theta[0][0]+0.5)*Math.cos(theta[0][1]+0.5), //x
+        (15+17)*Math.cos(theta[0][0]+0.5)*Math.cos(theta[0][1]+0.5), //y
+        (15+17)*Math.sin(theta[0][1]+0.5)//z
+        );
+        at=vec3(
+            15.5*Math.sin(theta[0][0])*Math.cos(theta[0][1]), //x
+            15.5*Math.cos(theta[0][0])*Math.cos(theta[0][1]), //y
+            15.5*Math.sin(theta[0][1])//z
+        )
+
+        up=vec3(
+                Math.sin(theta[0][0]+0.5)*Math.cos(theta[0][1]+0.5), //x
+                Math.cos(theta[0][0]+0.5)*Math.cos(theta[0][1]+0.5), //y
+                Math.sin(theta[0][1]+0.5)//z
+        )
         m=lookAt(eye,at,up)
         figure[sceneId] = createNode( m, scene, null, carID );
         break;
 
+    case cameraId:
+        break
     case carID:
 
-        m=mult(m,translate(15.5*Math.sin(theta[0][0]),15.5*Math.cos(theta[0][0]),0));
-        m=mult(m,rotate(  180.0/Math.PI *theta[0][0]+8 ,[0,0,1]));
+
+        m=mult(m,translate(
+                        15.5*Math.sin(theta[0][0])*Math.cos(theta[0][1]), //x
+                        15.5*Math.cos(theta[0][0])*Math.cos(theta[0][1]), //y
+                        15.5*Math.sin(theta[0][1])//z
+                        )
+                );
+        
+        
+
+        // m=mult(m,rotate(  8 ,[
+        //             15.5*Math.sin(theta[0][0])*Math.cos(theta[0][1]), //x
+        //             15.5*Math.cos(theta[0][0])*Math.cos(theta[0][1]), //y
+        //             15.5*Math.sin(theta[0][1])//z
+        //                     ]));       
+        
+        m=mult(m,rotate(  90*(direction+1) ,[
+                                15.5*Math.sin(theta[0][0])*Math.cos(theta[0][1]), //x
+                                15.5*Math.cos(theta[0][0])*Math.cos(theta[0][1]), //y
+                                15.5*Math.sin(theta[0][1])//z
+                                        ]));       
+
+        
+     
+
         figure[carID]=createNode(m,car,worldID,wheel1ID);
         break;
 
@@ -283,6 +361,13 @@ function world() {
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix) );
     gl.uniform1i( gl.getUniformLocation(program,"uNode"), worldID );
      gl.drawArrays(gl.TRIANGLES, worldi[0], worldi[1]-worldi[0]);
+}
+
+function camera() {
+    instanceMatrix= modelViewMatrix;
+    //instanceMatrix = mult(instanceMatrix, translate(0,-1.03,0))
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix) );
+    gl.uniform1i( gl.getUniformLocation(program,"uNode"), cameraId );
 }
 
 function quad(a, b, c, d) {
@@ -454,9 +539,9 @@ function triangle(a, b, c) {
     pointsArray.push(a);
     pointsArray.push(b);
     pointsArray.push(c);
-    texCoord.push(vec2(0,0));
-    texCoord.push(vec2(0,0));
-    texCoord.push(vec2(0,0));
+    texCoord.push(vec2(a[0],a[1]));
+    texCoord.push(vec2(a[0],a[1]));
+    texCoord.push(vec2(a[0],a[1]));
     // normals are vectors
 
     // normalsArray.push(vec4(a[0],a[1], a[2], 0.0));
@@ -485,6 +570,7 @@ function divideTriangle(a, b, c, count) {
    }
    else {
        triangle(a, b, c);
+       
    }
 }
 
@@ -606,6 +692,41 @@ window.onload = function init() {
         initNodes(sceneId);
     };
 
+    document.onkeydown= function(e){
+        e=e || window.event;
+  //      alert(e.keyCode);
+        if(e.keyCode==arrow_right){
+            direction=Math.abs((direction+1)%3)
+            verse=verse*1;
+            if(verse == 1){
+                verse=2;
+            }else if(verse==2){
+                verse=-1
+            }
+            else if(verse==-1){
+                verse=-2
+            }
+            else if(verse==-2){
+                verse=1
+            }
+            alert(direction)
+        }
+        if(e.keyCode==arrow_left){
+            direction=Math.abs((direction-1)%3);
+            if(verse == 1){
+                verse=-2;
+            }else if(verse==2){
+                verse=1
+            }
+            else if(verse==-1){
+                verse=2
+            }
+            else if(verse==-2){
+                verse=-1
+            }
+            alert(direction)
+        }
+    }
     for(i=0; i<numNodes; i++) initNodes(i);
 
     render();
@@ -614,13 +735,8 @@ window.onload = function init() {
 
 var render = function() {
         theta[1][0]+=3;
-        theta[0][0]+=0.01;
-
-        initNodes(carID);
-        initNodes(wheel1ID);
-        initNodes(wheel2ID);
-        initNodes(wheel3ID);
-        initNodes(wheel4ID);
+        theta[0][direction%2]+=Math.sign(verse)*-0.01;//angle
+        for(i=0; i<numNodes; i++) initNodes(i);
         gl.clear( gl.COLOR_BUFFER_BIT );
         traverse(sceneId);
         requestAnimationFrame(render);

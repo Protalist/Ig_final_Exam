@@ -42,7 +42,8 @@ void main()
     if(uNode==0){
         fColor = vec4(0.0, 0.0, 1.0, 1.0);
     }
-    else if(uNode == 6) { fColor = vec4(0.0, 1.0, 0.0, 1.0);}
+    else if(uNode == 6) { fColor =texture(uTex0, vTexCoord); //vec4(0.0, 1.0, 0.0, 1.0);
+    }
     else{
         fColor= texture(uTex0, vTexCoord); //vec4(0.0,1.0,0.0,1.0)
     }
