@@ -37,6 +37,10 @@ function radians( degrees ) {
     return degrees * Math.PI / 180.0;
 }
 
+function degree(radians){
+  return radians / Math.PI * 180.0;
+}
+
 //----------------------------------------------------------------------------
 
 
