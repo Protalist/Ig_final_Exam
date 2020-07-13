@@ -39,20 +39,23 @@ uniform int uNode;
 
 void main()
 {
-    if(uNode==0){
-        fColor = vec4(0.0, 0.0, 1.0, 1.0);
+
+    fColor= vec4(0.0,1.0,0.0,1.0);//texture(uTex0, vTexCoord); //
+
+     if(uNode == 17) {fColor =texture(uTex0, vTexCoord); // fColor= vec4(1.0, 0.0, 1.0, 1.0);//
     }
-    else if(uNode == 6) { fColor =texture(uTex0, vTexCoord); //vec4(0.0, 1.0, 0.0, 1.0);
+
+    if(uNode ==11 || uNode== 12){
+        fColor= vec4(1.0,0.0,0.0,1.0);
     }
-    else{
-        fColor= texture(uTex0, vTexCoord); //vec4(0.0,1.0,0.0,1.0)
-    }
+
+
 }
 </script>
 
 <script type="text/javascript" src="../Common/InitShaders.js"></script>
 <script type="text/javascript" src="../Common/MVnew.js"></script>
-<script type="text/javascript" src="Homework2.js"></script>
+<script type="text/javascript" src="final.js"></script>
 </head>
 
 <body>
