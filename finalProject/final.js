@@ -280,6 +280,18 @@ window.onload= function(){
     tree_a.push(treeS())
     tree_a[0].scale.set(4,4,4)
     tree_a[0].position.set(-25,2*3,0)
+
+    tree_a.push(treeS())
+    tree_a[1].scale.set(4,4,4)
+    tree_a[1].position.set(25,2*3,0)
+
+    tree_a.push(treeS())
+    tree_a[2].scale.set(4,4,4)
+    tree_a[2].position.set(-25,2*3,0)
+
+    tree_a.push(treeS())
+    tree_a[3].scale.set(4,4,4)
+    tree_a[3].position.set(25,2*3,0)
     
     renderer = new THREE.WebGLRenderer();
     renderer.shadowMap.enabled = true;
@@ -327,9 +339,10 @@ function animate(time) {
         roller_wheel[i].rotation.x=an*Math.PI/180
     }
 
-    var moveTrhee=((an*10)%180)*Math.PI/180
+    //var moveTrhee=((an*10)%180)*Math.PI/180
     for(var i=0; i< tree_a.length; i++){
-        tree_a[i].position.z=((i+30) *Math.cos(moveTrhee))
+        var moveTrhee=((an*10+i*45)%180)*Math.PI/180
+        tree_a[i].position.z=((50) *Math.cos(moveTrhee))
     }
     console.log(moveTrhee)
     texture_a[0].offset.y -= .07;
