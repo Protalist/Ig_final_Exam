@@ -14,6 +14,7 @@ var controls
 
 var light_a=[]
 var roller_wheel=[]
+var texture_a=[];
 //dimension of the pivot
 const radius = 0.5;
 const widthSegments = 6;
@@ -67,6 +68,7 @@ function plane(a,b){
     mesh.rotation.x = Math.PI * -.5;
     mesh.receiveShadow = true;
     scene.add(mesh);
+    texture_a.push(texture)
     }
 
 function humanStructure(){
@@ -124,13 +126,13 @@ function rollerBlade(){
     
     var lowerGeometry=  new THREE.BoxBufferGeometry(0.7,0.7,2)
 
-    const radiusTop =  0.15;  
+    var radiusTop =  0.15;  
 
-    const radiusBottom =  0.15;  
+    var radiusBottom =  0.15;  
     
-    const height =  0.3;  
+    var height =  0.3;  
     
-    const radialSegments = 11;  
+    var radialSegments = 11;  
     
     const geometryWheel = new THREE.CylinderBufferGeometry(
         radiusTop, radiusBottom, height, radialSegments);
@@ -139,7 +141,7 @@ function rollerBlade(){
     
     var upperPart= new THREE.Mesh(geometryUpper, rollerMaterial);
     var lowerPart= new THREE.Mesh(lowerGeometry, rollerMaterial);
-    rollerMaterial.map=texture;
+    //rollerMaterial.map.set(texture);
     var wheel1= new THREE.Mesh(geometryWheel, rollerMaterial);
     var wheel2= new THREE.Mesh(geometryWheel, rollerMaterial);
     var wheel3= new THREE.Mesh(geometryWheel, rollerMaterial);
@@ -211,14 +213,13 @@ function art( isLeg){
 window.onload= function(){
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    
+    camera.position.set(0,17,17)
     scene.background = new THREE.Color( 'skyblue' );
 
 
     light(-2, 4, 8);
     //light(0, 4, 0);
-    plane(30,30);
-    camera.position.z = 5;
+    plane(60,60);
 
     scene.add(camera)
 
@@ -268,8 +269,9 @@ function animate(time) {
     human.children[4].children[0].children[0].rotation.x=(45* Math.cos(an))*Math.PI/180+45
     human.children[5].children[0].children[0].rotation.x=-(45* Math.cos(an))*Math.PI/180+45
     for(var i=0; i< roller_wheel.length;i++){
-        roller_wheel[i].rotation.y=an*Math.PI/180
+        roller_wheel[i].rotation.x=an*Math.PI/180
     }
+    texture_a[0].offset.y -= .07;
     controls.update();
 	renderer.render( scene, camera );
 }
