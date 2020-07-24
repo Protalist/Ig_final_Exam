@@ -16,6 +16,8 @@ var light_a=[]
 var roller_wheel=[]
 var texture_a=[];
 var tree_a=[];
+var lamp_a=[];
+
 //dimension of the pivot
 const radius = 0.5;
 const widthSegments = 6;
@@ -46,7 +48,7 @@ light.shadow.camera.far = 50;     // default
     scene.add(light);
     light_a.push(light)
     var helper = new THREE.CameraHelper( light.shadow.camera );
-    scene.add( helper );
+   // scene.add( helper );
 
     
   }
@@ -261,13 +263,36 @@ function treeS(){
   scene.add(tree )
   return tree;
 }
+
+function streetLamp(){
+    var bodymaterial = new THREE.MeshLambertMaterial({ color: 0x8B8381 } );
+    var geometry=new THREE.BoxGeometry( 1, 1, 2 );
+    var GeometryLamp = new THREE.CylinderBufferGeometry(0.5, 0.5, 15, 10);
+   
+    var pole= new THREE.Mesh( GeometryLamp, bodymaterial );
+    pole.position.set(0,15/2,0)
+   
+    var pole2= new THREE.Mesh(geometry,bodymaterial);
+    pole2.position.set(0.0,15.0,0.5);
+
+    var street = new THREE.Group();
+
+    street.add(pole);
+    street.add(pole2);
+
+    scene.add(street);
+    return street;
+}
+
 window.onload= function(){
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0,17,17)
     scene.background = new THREE.Color( 'skyblue' );
 
-
+    var helper = new THREE.CameraHelper( camera );
+    scene.add( helper );
+    
     light(-2, 4, 8);
     //light(0, 4, 0);
     plane(60,60);
@@ -279,20 +304,53 @@ window.onload= function(){
 
     tree_a.push(treeS())
     tree_a[0].scale.set(4,4,4)
-    tree_a[0].position.set(-25,2*3,0)
+    tree_a[0].position.set(-25,2*3,40)
+
 
     tree_a.push(treeS())
     tree_a[1].scale.set(4,4,4)
-    tree_a[1].position.set(25,2*3,0)
+    tree_a[1].position.set(25,2*3,40)
 
     tree_a.push(treeS())
     tree_a[2].scale.set(4,4,4)
-    tree_a[2].position.set(-25,2*3,0)
+    tree_a[2].position.set(-25,2*3,40)
 
     tree_a.push(treeS())
     tree_a[3].scale.set(4,4,4)
-    tree_a[3].position.set(25,2*3,0)
+    tree_a[3].position.set(25,2*3,40)
     
+    for(var i=0;i<4;i++){
+        lamp_a.push(streetLamp())
+        var d=1
+        if(i%2 !=0 ){
+            d=d*-1
+        }
+        lamp_a[i].rotation.y=d*(270*Math.PI/180)
+        lamp_a[i].position.x=d*25
+        lamp_a[i].position.z=40
+    }
+    
+    for(var i=0;i<tree_a.length;i++){
+        var tween = new TWEEN.Tween(tree_a[i].position).to({z: -40}, 10000).delay((i+1)*10000/4).repeat(Infinity).repeatDelay(0).start()
+    }
+
+    for(var i=0;i<lamp_a.length;i++){
+        var tween = new TWEEN.Tween(lamp_a[i].position).to({z: -40}, 10000).delay((i+1)*10000/4+250).repeat(Infinity).repeatDelay(0).start()
+    }
+
+    var leftLeg = new TWEEN.Tween(human.children[4].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
+    var lefLowertLeg = new TWEEN.Tween(human.children[4].children[0].children[0].rotation).to({x: (90*Math.PI/180)}, 1500).repeat(1).yoyo(true)
+    var rightLeg = new TWEEN.Tween(human.children[5].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
+    var rightLowertLeg = new TWEEN.Tween(human.children[5].children[0].children[0].rotation).to({x: (90*Math.PI/180)}, 1500).repeat(1).yoyo(true)
+   
+    leftLeg.chain(rightLeg);
+    rightLeg.chain(leftLeg);
+    leftLeg.start()
+
+    lefLowertLeg.chain(rightLowertLeg)
+    rightLowertLeg.chain(lefLowertLeg)
+    lefLowertLeg.start()
+
     renderer = new THREE.WebGLRenderer();
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -315,37 +373,57 @@ window.onload= function(){
 var now=0.0;
 var an=0.0;
 
-function animate(time) {
+
+function animate(time){
     time *= 0.001;
     var delta=time-now;
     now=time;
     an=an+delta
-
-    if (isNaN(an)){
-        an=0.0
-    }
     requestAnimationFrame( animate );
-    //light_a[0].position.set(0,4*Math.cos(an/2),4*Math.sin(an/2))
-    human.position.y=(1* Math.cos(an*2)+1)
-    human.position.z=(1* Math.cos(an*2))
-    human.children[2].rotation.z=(45* Math.cos(an))*Math.PI/180+45
-    human.children[3].rotation.z=-(45* Math.cos(an))*Math.PI/180-45
 
-    human.children[4].rotation.x=(90* Math.cos(an))*Math.PI/180
-    human.children[5].rotation.x=-(90* Math.cos(an))*Math.PI/180
-    human.children[4].children[0].children[0].rotation.x=(45* Math.cos(an))*Math.PI/180+45
-    human.children[5].children[0].children[0].rotation.x=-(45* Math.cos(an))*Math.PI/180+45
-    for(var i=0; i< roller_wheel.length;i++){
-        roller_wheel[i].rotation.x=an*Math.PI/180
-    }
+    TWEEN.update()
 
-    //var moveTrhee=((an*10)%180)*Math.PI/180
-    for(var i=0; i< tree_a.length; i++){
-        var moveTrhee=((an*10+i*45)%180)*Math.PI/180
-        tree_a[i].position.z=((50) *Math.cos(moveTrhee))
-    }
-    console.log(moveTrhee)
     texture_a[0].offset.y -= .07;
     controls.update();
 	renderer.render( scene, camera );
 }
+
+// function animate(time) {
+//     time *= 0.001;
+//     var delta=time-now;
+//     now=time;
+//     an=an+delta
+
+//     if (isNaN(an)){
+//         an=0.0
+//     }
+//     requestAnimationFrame( animate );
+//     // //light_a[0].position.set(0,4*Math.cos(an/2),4*Math.sin(an/2))
+//     // //human.position.y=(1* Math.cos(an*2)+1)
+//     // human.position.z=(1* Math.cos(an*2))
+//     // human.children[2].rotation.z=(45* Math.cos(an))*Math.PI/180+45
+//     // human.children[3].rotation.z=-(45* Math.cos(an))*Math.PI/180-45
+
+
+//     //     human.children[4].rotation.x=(45* Math.cos(an)+45)*Math.PI/180
+//     //     human.children[4].children[0].children[0].rotation.x=(45* Math.cos(an)+45)*Math.PI/180
+
+//     //     human.children[5].rotation.x=(45* -Math.cos(an)+45)*Math.PI/180
+//     //     human.children[5].children[0].children[0].rotation.x=-(45* Math.cos(an)-45)*Math.PI/180
+
+
+
+//     // for(var i=0; i< roller_wheel.length;i++){
+//     //     roller_wheel[i].rotation.x=an*Math.PI/180
+//     // }
+
+//     // //var moveTrhee=((an*10)%180)*Math.PI/180
+//     // for(var i=0; i< tree_a.length; i++){
+//     //     var moveTrhee=((an*10+i*45)%180)*Math.PI/180
+//     //     tree_a[i].position.z=((50) *Math.cos(moveTrhee))
+//     // }
+    
+//     texture_a[0].offset.y -= .07;
+//     controls.update();
+// 	renderer.render( scene, camera );
+// }
