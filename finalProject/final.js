@@ -15,6 +15,7 @@ var controls
 var light_a=[]
 var roller_wheel=[]
 var texture_a=[];
+var tree_a=[];
 //dimension of the pivot
 const radius = 0.5;
 const widthSegments = 6;
@@ -210,6 +211,56 @@ function art( isLeg){
 
     return pivot1
 }
+
+function treeS(){
+
+  var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+
+  var leaveDarkMaterial = new THREE.MeshLambertMaterial( { color: 0x91E56E } );
+  var leaveLightMaterial = new THREE.MeshLambertMaterial( { color: 0xA2FF7A } );
+  var leaveDarkDarkMaterial = new THREE.MeshLambertMaterial( { color: 0x71B356 } );
+  var stemMaterial = new THREE.MeshLambertMaterial( { color: 0x7D5A4F } );
+
+  var stem = new THREE.Mesh( geometry, stemMaterial );
+  stem.position.set( 0, 0, 0 );
+  stem.scale.set( 0.3, 1.5, 0.3 );
+
+  var squareLeave01 = new THREE.Mesh( geometry, leaveDarkMaterial );
+  squareLeave01.position.set( 0.5, 1.6, 0.5 );
+  squareLeave01.scale.set( 0.8, 0.8, 0.8 );
+
+  var squareLeave02 = new THREE.Mesh( geometry, leaveDarkMaterial );
+  squareLeave02.position.set( -0.4, 1.3, -0.4 );
+  squareLeave02.scale.set( 0.7, 0.7, 0.7 );
+
+  var squareLeave03 = new THREE.Mesh( geometry, leaveDarkMaterial );
+  squareLeave03.position.set( 0.4, 1.7, -0.5 );
+  squareLeave03.scale.set( 0.7, 0.7, 0.7 );
+
+  var leaveDark = new THREE.Mesh( geometry, leaveDarkMaterial );
+  leaveDark.position.set( 0, 1.2, 0 );
+  leaveDark.scale.set( 1, 2, 1 );
+
+  var leaveLight = new THREE.Mesh( geometry, leaveLightMaterial );
+  leaveLight.position.set( 0, 1.2, 0 );
+  leaveLight.scale.set( 1.1, 0.5, 1.1 );
+
+  var ground = new THREE.Mesh( geometry, leaveDarkDarkMaterial );
+  ground.position.set( 0, -1, 0 );
+  ground.scale.set( 2.4, 0.8, 2.4 );
+
+  var tree = new THREE.Group();
+  tree.add( leaveDark );
+  tree.add( leaveLight );
+  tree.add( squareLeave01 );
+  tree.add( squareLeave02 );
+  tree.add( squareLeave03 );
+  tree.add( ground );
+  tree.add( stem );
+
+  scene.add(tree )
+  return tree;
+}
 window.onload= function(){
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -226,6 +277,10 @@ window.onload= function(){
     human=humanStructure()
     scene.add(human);
 
+    tree_a.push(treeS())
+    tree_a[0].scale.set(4,4,4)
+    tree_a[0].position.set(-25,2*3,0)
+    
     renderer = new THREE.WebGLRenderer();
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -271,6 +326,12 @@ function animate(time) {
     for(var i=0; i< roller_wheel.length;i++){
         roller_wheel[i].rotation.x=an*Math.PI/180
     }
+
+    var moveTrhee=((an*10)%180)*Math.PI/180
+    for(var i=0; i< tree_a.length; i++){
+        tree_a[i].position.z=((i+30) *Math.cos(moveTrhee))
+    }
+    console.log(moveTrhee)
     texture_a[0].offset.y -= .07;
     controls.update();
 	renderer.render( scene, camera );
