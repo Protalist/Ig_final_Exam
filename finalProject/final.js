@@ -1,7 +1,7 @@
 
 var VERSION='0.118.3'
-import * as THREE from 'https://unpkg.com/three@0.118.3/build/three.module.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.118.3/examples/jsm/controls/OrbitControls.js';
+import * as THREE from '../three.js-master/build/three.module.js'//'https://unpkg.com/three@0.118.3/build/three.module.js';
+import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js' // 'https://unpkg.com/three@0.118.3/examples/jsm/controls/OrbitControls.js';
 
 const loader = new THREE.TextureLoader();
 
@@ -54,11 +54,11 @@ light.shadow.camera.far = 50;     // default
   }
 
 function plane(a,b){
-    const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
+    const texture = loader.load('../finalProject/texture/body.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.magFilter = THREE.NearestFilter;
-    const repeats = a / 2;
+    const repeats = a/32;
 
     texture.repeat.set(repeats, repeats);
 
@@ -66,6 +66,7 @@ function plane(a,b){
     const planeMat = new THREE.MeshPhongMaterial({
         map: texture,
     side: THREE.DoubleSide,
+    fog: false,
     });
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -.5;
@@ -74,8 +75,15 @@ function plane(a,b){
     texture_a.push(texture)
     }
 
+function checkIn(O){
+    if(O.position.z<30 && O.position.z<30){
+        O.fog=false
+    }else{
+        O.fog=true
+    }
+}
 function humanStructure(){
-    const Material = new THREE.MeshPhongMaterial({color: 0xFFFF00});
+    const Material = new THREE.MeshPhongMaterial({color: 0xFFFF00, fog: true});
     const cubeGeometry= new THREE.BoxBufferGeometry(1,1,1);
     
     const humanBody = new THREE.Object3D();
@@ -112,7 +120,7 @@ function humanStructure(){
 
 }
 function rollerBlade(){
-    const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
+    const texture = loader.load('../finalProject/texture/body.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.magFilter = THREE.NearestFilter;
@@ -140,7 +148,7 @@ function rollerBlade(){
     const geometryWheel = new THREE.CylinderBufferGeometry(
         radiusTop, radiusBottom, height, radialSegments);
 
-    var rollerMaterial = new THREE.MeshPhongMaterial({color: 0xEA330C});
+    var rollerMaterial = new THREE.MeshPhongMaterial({color: 0xEA330C, fog: true});
     
     var upperPart= new THREE.Mesh(geometryUpper, rollerMaterial);
     var lowerPart= new THREE.Mesh(lowerGeometry, rollerMaterial);
@@ -176,7 +184,7 @@ function art( isLeg){
     var pivotGeometry = new THREE.SphereBufferGeometry(
         radius, widthSegments, heightSegments);
   
-    var pivotMaterial = new THREE.MeshPhongMaterial({color: 0xFFFF00});
+    var pivotMaterial = new THREE.MeshPhongMaterial({color: 0xFFFF00, fog: true});
 
     var cubeGeometry= new THREE.CylinderBufferGeometry(
         0.5, 0.5, 2, 10);
@@ -284,14 +292,20 @@ function streetLamp(){
     return street;
 }
 
+// function fog(obj,near,far,color) {
+//     obj.fog = new THREE.Fog(color, near, far);
+//   }
+
 window.onload= function(){
     scene = new THREE.Scene();
+    //scene.fog=new THREE.Fog( 'skyblue' , 1, 2);
+
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     camera.position.set(0,17,17)
     scene.background = new THREE.Color( 'skyblue' );
 
     var helper = new THREE.CameraHelper( camera );
-    scene.add( helper );
+   // scene.add( helper );
     
     light(-2, 4, 8);
     //light(0, 4, 0);
@@ -300,25 +314,21 @@ window.onload= function(){
     scene.add(camera)
 
     human=humanStructure()
+    //human.fog=new THREE.Fog( 'skyblue' , 1, 2);
     scene.add(human);
 
-    tree_a.push(treeS())
-    tree_a[0].scale.set(4,4,4)
-    tree_a[0].position.set(-25,2*3,40)
+   
+    for(var i=0;i<4;i++){
+        var d=-1
+        if(i%2 !=0 ){
+            d=d*-1
+        }
+        tree_a.push(treeS())
+        tree_a[i].scale.set(4,4,4)
+        tree_a[i].position.set(d*25,2*3,40)
+        tree_a[i].visible=false
+    }
 
-
-    tree_a.push(treeS())
-    tree_a[1].scale.set(4,4,4)
-    tree_a[1].position.set(25,2*3,40)
-
-    tree_a.push(treeS())
-    tree_a[2].scale.set(4,4,4)
-    tree_a[2].position.set(-25,2*3,40)
-
-    tree_a.push(treeS())
-    tree_a[3].scale.set(4,4,4)
-    tree_a[3].position.set(25,2*3,40)
-    
     for(var i=0;i<4;i++){
         lamp_a.push(streetLamp())
         var d=1
@@ -328,21 +338,53 @@ window.onload= function(){
         lamp_a[i].rotation.y=d*(270*Math.PI/180)
         lamp_a[i].position.x=d*25
         lamp_a[i].position.z=40
+        lamp_a[i].visible=false
     }
     
     for(var i=0;i<tree_a.length;i++){
-        var tween = new TWEEN.Tween(tree_a[i].position).to({z: -40}, 10000).delay((i+1)*10000/4).repeat(Infinity).repeatDelay(0).start()
+        var tween = new TWEEN.Tween({ z:tree_a[i].position.z, obj:tree_a[i]}
+            ).to({z: -40}, 10000).delay((i+1)*10000/4).repeat(Infinity).repeatDelay(0).onUpdate(
+            
+            function (O){
+                O.obj.position.z=O.z
+                //console.log(O)
+                if(O.z<30 && O.z>-30){
+                    O.obj.visible=true
+                }else{
+                    O.obj.visible=false
+                }
+        }
+            ).start()
     }
 
     for(var i=0;i<lamp_a.length;i++){
-        var tween = new TWEEN.Tween(lamp_a[i].position).to({z: -40}, 10000).delay((i+1)*10000/4+250).repeat(Infinity).repeatDelay(0).start()
+        var tween = new TWEEN.Tween({ z:lamp_a[i].position.z, obj:lamp_a[i]}).to({z: -40}, 10000).delay((i+1)*10000/4+250).repeat(Infinity).repeatDelay(0).onUpdate(
+            
+            function (O){
+                O.obj.position.z=O.z
+                //console.log(O)
+                if(O.z<30 && O.z>-30){
+                    O.obj.visible=true
+                }else{
+                    O.obj.visible=false
+                }
+        }
+            )
+        .start()
     }
 
     var leftLeg = new TWEEN.Tween(human.children[4].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
-    var lefLowertLeg = new TWEEN.Tween(human.children[4].children[0].children[0].rotation).to({x: (90*Math.PI/180)}, 1500).repeat(1).yoyo(true)
+    var lefLowertLeg = new TWEEN.Tween(human.children[4].children[0].children[0].rotation).to({x: (45*Math.PI/180)}, 1500).repeat(1).yoyo(true)
     var rightLeg = new TWEEN.Tween(human.children[5].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
-    var rightLowertLeg = new TWEEN.Tween(human.children[5].children[0].children[0].rotation).to({x: (90*Math.PI/180)}, 1500).repeat(1).yoyo(true)
-   
+    var rightLowertLeg = new TWEEN.Tween(human.children[5].children[0].children[0].rotation).to({x: (45*Math.PI/180)}, 1500).repeat(1).yoyo(true)
+
+    //TO BE COnverted in to arms movement
+    // var leftLeg = new TWEEN.Tween(human.children[4].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
+    // var lefLowertLeg = new TWEEN.Tween(human.children[4].children[0].children[0].rotation).to({x: (45*Math.PI/180)}, 1500).repeat(1).yoyo(true)
+    // var rightLeg = new TWEEN.Tween(human.children[5].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
+    // var rightLowertLeg = new TWEEN.Tween(human.children[5].children[0].children[0].rotation).to({x: (45*Math.PI/180)}, 1500).repeat(1).yoyo(true)
+
+
     leftLeg.chain(rightLeg);
     rightLeg.chain(leftLeg);
     leftLeg.start()
@@ -383,7 +425,7 @@ function animate(time){
 
     TWEEN.update()
 
-    texture_a[0].offset.y -= .07;
+    texture_a[0].offset.y -= .0043;
     controls.update();
 	renderer.render( scene, camera );
 }
