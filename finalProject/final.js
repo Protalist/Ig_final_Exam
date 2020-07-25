@@ -283,11 +283,17 @@ function streetLamp(){
     var pole2= new THREE.Mesh(geometry,bodymaterial);
     pole2.position.set(0.0,15.0,0.5);
 
+    var sLight=new THREE.SpotLight(0xFFFFFF,1)
+    sLight.position.set(0.0,15.0,1.0)
+    sLight.angle=35*Math.PI/180
+    sLight.target.position.set(0.0,0.0,1.0)
+    sLight.castShadow = true;
     var street = new THREE.Group();
 
     street.add(pole);
     street.add(pole2);
-
+    street.add(sLight);
+    street.add(sLight.target)
     scene.add(street);
     return street;
 }
@@ -362,7 +368,7 @@ window.onload= function(){
             
             function (O){
                 O.obj.position.z=O.z
-                //console.log(O)
+                //O.obj.children[2].target.position.set(O.obj.position)
                 if(O.z<30 && O.z>-30){
                     O.obj.visible=true
                 }else{
@@ -394,7 +400,7 @@ window.onload= function(){
     lefLowertLeg.start()
 
     renderer = new THREE.WebGLRenderer();
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -417,17 +423,24 @@ var an=0.0;
 
 
 function animate(time){
-    time *= 0.001;
-    var delta=time-now;
-    now=time;
-    an=an+delta
+    // time *= 0.001;
+    // var delta=time-now;
+    // now=time;
+    // an=an+delta
     requestAnimationFrame( animate );
 
-    TWEEN.update()
+    TWEEN.update(time)
 
     texture_a[0].offset.y -= .0043;
     controls.update();
 	renderer.render( scene, camera );
+}
+
+document.onkeypress=function(e){
+    console.log(e.code)
+    if(e.keyCode==115){
+        renderer.shadowMap.enabled = !renderer.shadowMap.enabled;
+    }
 }
 
 // function animate(time) {
