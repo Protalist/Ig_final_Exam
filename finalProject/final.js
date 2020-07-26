@@ -324,30 +324,7 @@ window.onload= function(){
     human=humanStructure()
     //human.fog=new THREE.Fog( 'skyblue' , 1, 2);
     scene.add(human);
-    var loaderF = new FBXLoader();
-    loaderF.load( '../finalProject/models/Low Poly Cars (Free)_fbx/Models/car_1.fbx', function ( object ) {
-              
-        // apply texture
-        object.traverse(
-            function (child){
-                if (child instanceof THREE.Mesh) {
-            child.material.map = loader.load('../finalProject/models/Low Poly Cars (Free)_fbx/Textures/Car Texture 1.png');
-            child.material.needsUpdate = true;
-                }
-            }
-        )
-
-        object.rotateX(90*Math.PI/180)
-        object.rotateZ(90*Math.PI/180)
-        object.scale.set(7,7,7)
-
-        object.position.set(0,0,40);
-        scene.add( object );
-        car_a.push(object)
-        
-         tween2= new TWEEN.Tween(object.position).to({z: -40}, 8000).delay(5000).repeat(Infinity).repeatDelay(0).start()
-  
-    } );
+    
    
     for(var i=0;i<4;i++){
         var d=-1
@@ -409,6 +386,33 @@ window.onload= function(){
         }
             )
         .start()
+
+
+
+        var loaderF = new FBXLoader();
+    loaderF.load( '../finalProject/models/Low Poly Cars (Free)_fbx/Models/car_1.fbx', function ( object ) {
+              
+        // apply texture
+        object.traverse(
+            function (child){
+                if (child instanceof THREE.Mesh) {
+            child.material.map = loader.load('../finalProject/models/Low Poly Cars (Free)_fbx/Textures/Car Texture 1.png');
+            child.material.needsUpdate = true;
+                }
+            }
+        )
+
+        object.rotateX(90*Math.PI/180)
+        object.rotateZ(90*Math.PI/180)
+        object.scale.set(7,7,7)
+
+        object.position.set(0,0,40);
+        scene.add( object );
+        car_a.push(object)
+        
+         tween2= new TWEEN.Tween(object.position).to({z: -40}, 8000).delay(5000).repeat(Infinity).repeatDelay(0).start()
+  
+    } );
     }
 
 
