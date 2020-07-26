@@ -2,6 +2,7 @@
 var VERSION='0.118.3'
 import * as THREE from '../three.js-master/build/three.module.js'//'https://unpkg.com/three@0.118.3/build/three.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js' // 'https://unpkg.com/three@0.118.3/examples/jsm/controls/OrbitControls.js';
+import { FBXLoader } from '../three.js-master/examples/jsm/loaders/FBXLoader.js';
 
 const loader = new THREE.TextureLoader();
 
@@ -17,6 +18,7 @@ var roller_wheel=[]
 var texture_a=[];
 var tree_a=[];
 var lamp_a=[];
+var car_a=[]
 
 //dimension of the pivot
 const radius = 0.5;
@@ -211,7 +213,6 @@ function art( isLeg){
     upperArt.add(pivot2)
     pivot2.add(lowerArt)
 
-    console.log(pivot1)
 
     if(isLeg){
         var r=rollerBlade()
@@ -298,6 +299,7 @@ function streetLamp(){
     return street;
 }
 
+var tween2;
 // function fog(obj,near,far,color) {
 //     obj.fog = new THREE.Fog(color, near, far);
 //   }
@@ -322,7 +324,30 @@ window.onload= function(){
     human=humanStructure()
     //human.fog=new THREE.Fog( 'skyblue' , 1, 2);
     scene.add(human);
+    var loaderF = new FBXLoader();
+    loaderF.load( '../finalProject/models/Low Poly Cars (Free)_fbx/Models/car_1.fbx', function ( object ) {
+              
+        // apply texture
+        object.traverse(
+            function (child){
+                if (child instanceof THREE.Mesh) {
+            child.material.map = loader.load('../finalProject/models/Low Poly Cars (Free)_fbx/Textures/Car Texture 1.png');
+            child.material.needsUpdate = true;
+                }
+            }
+        )
 
+        object.rotateX(90*Math.PI/180)
+        object.rotateZ(90*Math.PI/180)
+        object.scale.set(7,7,7)
+
+        object.position.set(0,0,40);
+        scene.add( object );
+        car_a.push(object)
+        
+         tween2= new TWEEN.Tween(object.position).to({z: -40}, 8000).delay(5000).repeat(Infinity).repeatDelay(0).start()
+  
+    } );
    
     for(var i=0;i<4;i++){
         var d=-1
@@ -347,6 +372,13 @@ window.onload= function(){
         lamp_a[i].visible=false
     }
     
+
+    console.log("io dopo")
+    for(var i=0;i < car_a.length;i++){
+        console.log("printa il coso")
+        var tween= new TWEEN.Tween(car_a[i].position).to({z: -40}, 10000).delay(0).repeat(Infinity).repeatDelay(0).start()
+    }
+
     for(var i=0;i<tree_a.length;i++){
         var tween = new TWEEN.Tween({ z:tree_a[i].position.z, obj:tree_a[i]}
             ).to({z: -40}, 10000).delay((i+1)*10000/4).repeat(Infinity).repeatDelay(0).onUpdate(
@@ -378,6 +410,7 @@ window.onload= function(){
             )
         .start()
     }
+
 
     var leftLeg = new TWEEN.Tween(human.children[4].rotation).to({x: (90*Math.PI/180)}, 1500).delay(0).repeat(1).yoyo(true)
     var lefLowertLeg = new TWEEN.Tween(human.children[4].children[0].children[0].rotation).to({x: (45*Math.PI/180)}, 1500).repeat(1).yoyo(true)
@@ -437,7 +470,6 @@ function animate(time){
 }
 
 document.onkeypress=function(e){
-    console.log(e.code)
     if(e.keyCode==115){
         renderer.shadowMap.enabled = !renderer.shadowMap.enabled;
     }
