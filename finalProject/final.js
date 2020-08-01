@@ -3,7 +3,7 @@
 import * as THREE from '../three.js-master/build/three.module.js'//'https://unpkg.com/three@0.118.3/build/three.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js' // 'https://unpkg.com/three@0.118.3/examples/jsm/controls/OrbitControls.js';
 import { FBXLoader } from '../three.js-master/examples/jsm/loaders/FBXLoader.js';
-import TWEEN from '../tween.js/dist/tween.esm.js';
+import TWEEN from '../tween.esm.js';
 
 //trhee object
 const loader = new THREE.TextureLoader();
@@ -400,6 +400,7 @@ function streetLamp(){
 var tween2=[];
 
 window.onload= function(){
+    
     for(var i=0;i<100;i++){
         continue;
     }
